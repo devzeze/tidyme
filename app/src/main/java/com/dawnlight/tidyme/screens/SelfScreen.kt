@@ -44,29 +44,42 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.dawnlight.tidyme.data.database.entity.Event
+import com.dawnlight.tidyme.data.database.entity.EventType
+import com.dawnlight.tidyme.data.database.entity.OccurrenceType
+import com.dawnlight.tidyme.data.database.entity.RepeatType
 import com.dawnlight.tidyme.ui.theme.TidyMeTheme
+import com.dawnlight.tidyme.viewmodel.EventViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
 @Composable
-fun SelfScreen() {
+fun SelfScreen(viewModel: EventViewModel = viewModel()) {
     var isExpanded by remember { mutableStateOf(false) }
     var showSingleDialog by remember { mutableStateOf(false) }
     var showRoutineDialog by remember { mutableStateOf(false) }
 
     if (showSingleDialog) {
-        SingleTaskDialog(onDismiss = { showSingleDialog = false })
+        SingleTaskDialog(
+            onDismiss = { showSingleDialog = false },
+            viewModel = viewModel
+        )
     }
 
     if (showRoutineDialog) {
-        RoutineTaskDialog(onDismiss = { showRoutineDialog = false })
+        RoutineTaskDialog(
+            onDismiss = { showRoutineDialog = false },
+            viewModel = viewModel
+        )
     }
 
     Box(
@@ -121,7 +134,7 @@ fun SelfScreen() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RoutineTaskDialog(onDismiss: () -> Unit) {
+fun RoutineTaskDialog(onDismiss: () -> Unit, viewModel: EventViewModel) {
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var frequencyNumber by remember { mutableStateOf("") }
@@ -196,7 +209,31 @@ fun RoutineTaskDialog(onDismiss: () -> Unit) {
                         Text("Cancel")
                     }
                     Spacer(modifier = Modifier.width(8.dp))
-                    Button(onClick = { /* Handle save */ onDismiss() }) {
+                    Button(
+                        onClick = {
+                            if (title.isNotBlank() && frequencyNumber.isNotBlank()) {
+                                val frequency = frequencyNumber.toIntOrNull() ?: 1
+                                val repeatType = when (selectedFrequency) {
+                                    "Days" -> RepeatType.DAYS
+                                    "Weeks" -> RepeatType.WEEKS
+                                    "Months" -> RepeatType.MONTHS
+                                    else -> RepeatType.DAYS
+                                }
+                                val event = Event(
+                                    eventType = EventType.ROUTINE,
+                                    title = title,
+                                    description = description,
+                                    occurrenceType = OccurrenceType.REPEAT,
+                                    repeatType = repeatType,
+                                    repeatFrequency = frequency,
+                                    lastExecutionTimestamp = null
+                                )
+                                viewModel.insertEvent(event)
+                                onDismiss()
+                            }
+                        },
+                        enabled = title.isNotBlank() && frequencyNumber.isNotBlank()
+                    ) {
                         Text("Save")
                     }
                 }
@@ -207,7 +244,7 @@ fun RoutineTaskDialog(onDismiss: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SingleTaskDialog(onDismiss: () -> Unit) {
+fun SingleTaskDialog(onDismiss: () -> Unit, viewModel: EventViewModel) {
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var showDatePicker by remember { mutableStateOf(false) }
@@ -316,7 +353,24 @@ fun SingleTaskDialog(onDismiss: () -> Unit) {
                         Text("Cancel")
                     }
                     Spacer(modifier = Modifier.width(8.dp))
-                    Button(onClick = { /* Handle save */ onDismiss() }) {
+                    Button(
+                        onClick = {
+                            if (title.isNotBlank()) {
+                                val event = Event(
+                                    eventType = EventType.SINGLE,
+                                    title = title,
+                                    description = description,
+                                    occurrenceType = OccurrenceType.ONCE,
+                                    repeatType = null,
+                                    repeatFrequency = null,
+                                    lastExecutionTimestamp = selectedDate.timeInMillis
+                                )
+                                viewModel.insertEvent(event)
+                                onDismiss()
+                            }
+                        },
+                        enabled = title.isNotBlank()
+                    ) {
                         Text("Save")
                     }
                 }

@@ -45,7 +45,11 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RoutineTaskDialog(onDismiss: () -> Unit, viewModel: EventViewModel) {
+fun RoutineTaskDialog(
+    onDismiss: () -> Unit,
+    viewModel: EventViewModel,
+    category: EventCategory
+) {
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var frequencyNumber by remember { mutableStateOf("") }
@@ -138,7 +142,7 @@ fun RoutineTaskDialog(onDismiss: () -> Unit, viewModel: EventViewModel) {
                                     repeatType = repeatType,
                                     repeatFrequency = frequency,
                                     lastExecutionTimestamp = null,
-                                    category = EventCategory.SELF
+                                    category = category
                                 )
                                 viewModel.insertEvent(event)
                                 onDismiss()
@@ -156,7 +160,11 @@ fun RoutineTaskDialog(onDismiss: () -> Unit, viewModel: EventViewModel) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SingleTaskDialog(onDismiss: () -> Unit, viewModel: EventViewModel) {
+fun SingleTaskDialog(
+    onDismiss: () -> Unit,
+    viewModel: EventViewModel,
+    category: EventCategory
+) {
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var showDatePicker by remember { mutableStateOf(false) }
@@ -276,7 +284,7 @@ fun SingleTaskDialog(onDismiss: () -> Unit, viewModel: EventViewModel) {
                                     repeatType = null,
                                     repeatFrequency = null,
                                     lastExecutionTimestamp = selectedDate.timeInMillis,
-                                    category = EventCategory.SELF
+                                    category = category
                                 )
                                 viewModel.insertEvent(event)
                                 onDismiss()

@@ -14,8 +14,14 @@ data class Event(
     val repeatType: RepeatType?,
     val repeatFrequency: Int?,
     val lastExecutionTimestamp: Long?,
+    val category: EventCategory,
     val createdAt: Long = System.currentTimeMillis()
 )
+
+enum class EventCategory {
+    SELF,
+    SPACE
+}
 
 enum class EventType {
     SINGLE,

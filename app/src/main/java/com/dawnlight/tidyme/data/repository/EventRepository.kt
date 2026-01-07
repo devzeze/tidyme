@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.Flow
 class EventRepository(private val eventDao: EventDao) {
     fun getAllEvents(): Flow<List<Event>> = eventDao.getAllEvents()
 
+    fun getAllEventsOrdered(): Flow<List<Event>> = eventDao.getAllEventsOrdered()
+
     fun getEventsByType(eventType: EventType): Flow<List<Event>> =
         eventDao.getEventsByType(eventType)
 

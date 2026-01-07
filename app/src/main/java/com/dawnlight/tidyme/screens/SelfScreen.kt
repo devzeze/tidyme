@@ -11,13 +11,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Card
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -37,10 +35,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.dawnlight.tidyme.data.database.entity.Event
 import com.dawnlight.tidyme.data.database.entity.EventCategory
-import com.dawnlight.tidyme.data.database.entity.OccurrenceType
-import com.dawnlight.tidyme.data.database.entity.RepeatType
 import com.dawnlight.tidyme.ui.theme.TidyMeTheme
 import com.dawnlight.tidyme.viewmodel.EventViewModel
 
@@ -124,34 +119,6 @@ fun SelfScreen(viewModel: EventViewModel = viewModel()) {
                     modifier = Modifier.rotate(rotation)
                 )
             }
-        }
-    }
-}
-
-@Composable
-fun EventItem(event: Event) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = "Type: ${event.eventType}", style = MaterialTheme.typography.titleMedium)
-            Text(text = "Title: ${event.title}", style = MaterialTheme.typography.bodyLarge)
-            Text(text = "Description: ${event.description}", style = MaterialTheme.typography.bodyMedium)
-            val occurrenceText = when (event.occurrenceType) {
-                OccurrenceType.ONCE -> "Once"
-                OccurrenceType.REPEAT -> {
-                    val repeatTypeText = when (event.repeatType) {
-                        RepeatType.DAYS -> "Days"
-                        RepeatType.WEEKS -> "Weeks"
-                        RepeatType.MONTHS -> "Months"
-                        null -> ""
-                    }
-                    "Repeat every ${event.repeatFrequency} $repeatTypeText"
-                }
-            }
-            Text(text = "Occurrence: $occurrenceText", style = MaterialTheme.typography.bodySmall)
         }
     }
 }

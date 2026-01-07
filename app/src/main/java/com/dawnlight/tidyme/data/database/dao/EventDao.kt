@@ -16,6 +16,9 @@ interface EventDao {
     @Query("SELECT * FROM events ORDER BY createdAt DESC")
     fun getAllEvents(): Flow<List<Event>>
 
+    @Query("SELECT * FROM events ORDER BY CASE WHEN lastExecutionTimestamp IS NULL THEN 1 ELSE 0 END, lastExecutionTimestamp DESC, createdAt DESC")
+    fun getAllEventsOrdered(): Flow<List<Event>>
+
     @Query("SELECT * FROM events WHERE eventType = :eventType ORDER BY createdAt DESC")
     fun getEventsByType(eventType: EventType): Flow<List<Event>>
 

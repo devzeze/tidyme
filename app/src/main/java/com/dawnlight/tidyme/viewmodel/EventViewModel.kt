@@ -14,11 +14,13 @@ import kotlinx.coroutines.launch
 class EventViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: EventRepository
     val allEvents: Flow<List<Event>>
+    val allEventsOrdered: Flow<List<Event>>
 
     init {
         val eventDao = AppDatabase.getDatabase(application).eventDao()
         repository = EventRepository(eventDao)
         allEvents = repository.getAllEvents()
+        allEventsOrdered = repository.getAllEventsOrdered()
     }
 
     fun insertEvent(event: Event) = viewModelScope.launch {

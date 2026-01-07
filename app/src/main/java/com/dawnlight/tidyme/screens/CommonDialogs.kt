@@ -8,13 +8,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Public
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -42,6 +47,47 @@ import com.dawnlight.tidyme.viewmodel.EventViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+
+@Composable
+fun EventItem(event: Event) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = when (event.category) {
+                    EventCategory.SELF -> Icons.Filled.Person
+                    EventCategory.SPACE -> Icons.Filled.Public
+                },
+                contentDescription = event.category.name,
+                modifier = Modifier.padding(end = 16.dp)
+            )
+            Column {
+                Text(text = "Type: ${event.eventType}", style = MaterialTheme.typography.titleMedium)
+                Text(text = "Title: ${event.title}", style = MaterialTheme.typography.bodyLarge)
+                Text(text = "Description: ${event.description}", style = MaterialTheme.typography.bodyMedium)
+                val occurrenceText = when (event.occurrenceType) {
+                    OccurrenceType.ONCE -> "Once"
+                    OccurrenceType.REPEAT -> {
+                        val repeatTypeText = when (event.repeatType) {
+                            RepeatType.DAYS -> "Days"
+                            RepeatType.WEEKS -> "Weeks"
+                            RepeatType.MONTHS -> "Months"
+                            null -> ""
+                        }
+                        "Repeat every ${event.repeatFrequency} $repeatTypeText"
+                    }
+                }
+                Text(text = "Occurrence: $occurrenceText", style = MaterialTheme.typography.bodySmall)
+            }
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

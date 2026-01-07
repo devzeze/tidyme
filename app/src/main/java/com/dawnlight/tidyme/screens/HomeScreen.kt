@@ -18,6 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.dawnlight.tidyme.data.database.entity.EventType
 import com.dawnlight.tidyme.ui.theme.TidyMeTheme
 import com.dawnlight.tidyme.viewmodel.EventViewModel
 
@@ -41,8 +42,20 @@ fun HomeScreen(viewModel: EventViewModel = viewModel()) {
             LazyColumn(
                 modifier = Modifier.padding(16.dp)
             ) {
-                items(events) { event ->
-                    EventItem(event = event)
+                items(events.filter { event ->
+                    if (event.eventType == EventType.SINGLE) {
+                        event.lastExecutionTimestamp == null
+                    } else {
+                        val nextExecutionTime = event.getNextExecutionTime()
+                        nextExecutionTime != null && nextExecutionTime <= System.currentTimeMillis()
+                    }
+                }) { event ->
+                    EventItem(
+                        event = event,
+                        onSwipeToDismiss = {
+                            viewModel.updateLastExecutionTimestamp(it.id, System.currentTimeMillis())
+                        }
+                    )
                 }
             }
         }

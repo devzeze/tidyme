@@ -94,10 +94,15 @@ fun SelfScreen(viewModel: EventViewModel = viewModel()) {
                         onSwipeToDismiss = { eventToDelete ->
                             viewModel.deleteEvent(eventToDelete)
                         },
+                        onSwipeRight = { eventToMarkUndone ->
+                            val updatedEvent = eventToMarkUndone.copy(lastExecutionTimestamp = null)
+                            viewModel.updateEvent(updatedEvent)
+                        },
                         onLongPress = { longPressedEvent ->
                             selectedEventForDuplication = longPressedEvent
                             showSingleDialog = true
-                        }
+                        },
+                        dismissOnSwipeRight = false
                     )
                 }
             }

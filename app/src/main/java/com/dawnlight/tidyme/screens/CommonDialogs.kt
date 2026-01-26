@@ -65,70 +65,82 @@ import java.util.Locale
 fun EventItem(
     event: Event,
     onSwipeToDismiss: ((Event) -> Unit)? = null,
+    onSwipeRight: ((Event) -> Unit)? = null,
     onLongPress: ((Event) -> Unit)? = null,
-    swipeDirection: SwipeDirection = SwipeDirection.END_TO_START
+    swipeDirection: SwipeDirection = SwipeDirection.END_TO_START,
+    dismissOnSwipeRight: Boolean = true
 ) {
-    if (onSwipeToDismiss != null) {
+    val hasSwipeAction = onSwipeToDismiss != null || onSwipeRight != null
+
+    if (hasSwipeAction) {
         val dismissState = rememberSwipeToDismissBoxState(
             confirmValueChange = { value ->
-                when (swipeDirection) {
-                    SwipeDirection.START_TO_END -> {
-                        if (value == SwipeToDismissBoxValue.StartToEnd) {
+                when (value) {
+                    SwipeToDismissBoxValue.StartToEnd -> {
+                        if (onSwipeRight != null) {
+                            onSwipeRight(event)
+                            dismissOnSwipeRight
+                        } else if (swipeDirection == SwipeDirection.START_TO_END && onSwipeToDismiss != null) {
                             onSwipeToDismiss(event)
                             true
                         } else {
                             false
                         }
                     }
-                    SwipeDirection.END_TO_START -> {
-                        if (value == SwipeToDismissBoxValue.EndToStart) {
+                    SwipeToDismissBoxValue.EndToStart -> {
+                        if (swipeDirection == SwipeDirection.END_TO_START && onSwipeToDismiss != null) {
                             onSwipeToDismiss(event)
                             true
                         } else {
                             false
                         }
                     }
+                    else -> false
                 }
             }
         )
 
+        val enableStartToEnd = onSwipeRight != null || (swipeDirection == SwipeDirection.START_TO_END && onSwipeToDismiss != null)
+        val enableEndToStart = swipeDirection == SwipeDirection.END_TO_START && onSwipeToDismiss != null
+
         SwipeToDismissBox(
             state = dismissState,
-            enableDismissFromStartToEnd = swipeDirection == SwipeDirection.START_TO_END,
-            enableDismissFromEndToStart = swipeDirection == SwipeDirection.END_TO_START,
+            enableDismissFromStartToEnd = enableStartToEnd,
+            enableDismissFromEndToStart = enableEndToStart,
             backgroundContent = {
-                when (swipeDirection) {
-                    SwipeDirection.START_TO_END -> {
-                        val color by animateColorAsState(
-                            when (dismissState.targetValue) {
-                                SwipeToDismissBoxValue.StartToEnd -> Color.Green.copy(alpha = 0.5f)
-                                else -> Color.Transparent
-                            }, label = "background color"
-                        )
+                val startColor by animateColorAsState(
+                    when (dismissState.targetValue) {
+                        SwipeToDismissBoxValue.StartToEnd -> Color.Green.copy(alpha = 0.5f)
+                        else -> Color.Transparent
+                    }, label = "start background color"
+                )
+                val endColor by animateColorAsState(
+                    when (dismissState.targetValue) {
+                        SwipeToDismissBoxValue.EndToStart -> Color.Red.copy(alpha = 0.5f)
+                        else -> Color.Transparent
+                    }, label = "end background color"
+                )
+
+                Box(Modifier.fillMaxSize()) {
+                    if (enableStartToEnd) {
                         Box(
                             Modifier
                                 .fillMaxSize()
-                                .background(color)
+                                .background(startColor)
                                 .padding(horizontal = 20.dp),
                             contentAlignment = Alignment.CenterStart
                         ) {
                             Icon(
                                 Icons.Default.Done,
-                                contentDescription = "Mark as done"
+                                contentDescription = if (onSwipeRight != null) "Mark as undone" else "Mark as done"
                             )
                         }
                     }
-                    SwipeDirection.END_TO_START -> {
-                        val color by animateColorAsState(
-                            when (dismissState.targetValue) {
-                                SwipeToDismissBoxValue.EndToStart -> Color.Red.copy(alpha = 0.5f)
-                                else -> Color.Transparent
-                            }, label = "background color"
-                        )
+                    if (enableEndToStart) {
                         Box(
                             Modifier
                                 .fillMaxSize()
-                                .background(color)
+                                .background(endColor)
                                 .padding(horizontal = 20.dp),
                             contentAlignment = Alignment.CenterEnd
                         ) {

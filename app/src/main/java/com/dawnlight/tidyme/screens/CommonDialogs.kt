@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Public
@@ -64,42 +65,79 @@ import java.util.Locale
 fun EventItem(
     event: Event,
     onSwipeToDismiss: ((Event) -> Unit)? = null,
-    onLongPress: ((Event) -> Unit)? = null
+    onLongPress: ((Event) -> Unit)? = null,
+    swipeDirection: SwipeDirection = SwipeDirection.END_TO_START
 ) {
     if (onSwipeToDismiss != null) {
         val dismissState = rememberSwipeToDismissBoxState(
             confirmValueChange = { value ->
-                if (value == SwipeToDismissBoxValue.StartToEnd) {
-                    onSwipeToDismiss(event)
-                    true
-                } else {
-                    false
+                when (swipeDirection) {
+                    SwipeDirection.START_TO_END -> {
+                        if (value == SwipeToDismissBoxValue.StartToEnd) {
+                            onSwipeToDismiss(event)
+                            true
+                        } else {
+                            false
+                        }
+                    }
+                    SwipeDirection.END_TO_START -> {
+                        if (value == SwipeToDismissBoxValue.EndToStart) {
+                            onSwipeToDismiss(event)
+                            true
+                        } else {
+                            false
+                        }
+                    }
                 }
             }
         )
 
         SwipeToDismissBox(
             state = dismissState,
-            enableDismissFromStartToEnd = true,
-            enableDismissFromEndToStart = false,
+            enableDismissFromStartToEnd = swipeDirection == SwipeDirection.START_TO_END,
+            enableDismissFromEndToStart = swipeDirection == SwipeDirection.END_TO_START,
             backgroundContent = {
-                val color by animateColorAsState(
-                    when (dismissState.targetValue) {
-                        SwipeToDismissBoxValue.StartToEnd -> Color.Green.copy(alpha = 0.5f)
-                        else -> Color.Transparent
-                    }, label = "background color"
-                )
-                Box(
-                    Modifier
-                        .fillMaxSize()
-                        .background(color)
-                        .padding(horizontal = 20.dp),
-                    contentAlignment = Alignment.CenterStart
-                ) {
-                    Icon(
-                        Icons.Default.Done,
-                        contentDescription = "Mark as done"
-                    )
+                when (swipeDirection) {
+                    SwipeDirection.START_TO_END -> {
+                        val color by animateColorAsState(
+                            when (dismissState.targetValue) {
+                                SwipeToDismissBoxValue.StartToEnd -> Color.Green.copy(alpha = 0.5f)
+                                else -> Color.Transparent
+                            }, label = "background color"
+                        )
+                        Box(
+                            Modifier
+                                .fillMaxSize()
+                                .background(color)
+                                .padding(horizontal = 20.dp),
+                            contentAlignment = Alignment.CenterStart
+                        ) {
+                            Icon(
+                                Icons.Default.Done,
+                                contentDescription = "Mark as done"
+                            )
+                        }
+                    }
+                    SwipeDirection.END_TO_START -> {
+                        val color by animateColorAsState(
+                            when (dismissState.targetValue) {
+                                SwipeToDismissBoxValue.EndToStart -> Color.Red.copy(alpha = 0.5f)
+                                else -> Color.Transparent
+                            }, label = "background color"
+                        )
+                        Box(
+                            Modifier
+                                .fillMaxSize()
+                                .background(color)
+                                .padding(horizontal = 20.dp),
+                            contentAlignment = Alignment.CenterEnd
+                        ) {
+                            Icon(
+                                Icons.Default.Delete,
+                                contentDescription = "Delete"
+                            )
+                        }
+                    }
                 }
             }
         ) {
@@ -108,6 +146,11 @@ fun EventItem(
     } else {
         EventCardContent(event = event, onLongPress = onLongPress)
     }
+}
+
+enum class SwipeDirection {
+    START_TO_END,  // Swipe right
+    END_TO_START   // Swipe left
 }
 
 @OptIn(ExperimentalFoundationApi::class)

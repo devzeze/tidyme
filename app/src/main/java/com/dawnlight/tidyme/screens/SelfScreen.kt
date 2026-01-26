@@ -85,9 +85,15 @@ fun SelfScreen(viewModel: EventViewModel = viewModel()) {
             LazyColumn(
                 modifier = Modifier.padding(16.dp)
             ) {
-                items(events) { event ->
+                items(
+                    items = events,
+                    key = { event -> event.id }
+                ) { event ->
                     EventItem(
                         event = event,
+                        onSwipeToDismiss = { eventToDelete ->
+                            viewModel.deleteEvent(eventToDelete)
+                        },
                         onLongPress = { longPressedEvent ->
                             selectedEventForDuplication = longPressedEvent
                             showSingleDialog = true

@@ -42,19 +42,23 @@ fun HomeScreen(viewModel: EventViewModel = viewModel()) {
             LazyColumn(
                 modifier = Modifier.padding(16.dp)
             ) {
-                items(events.filter { event ->
-                    if (event.eventType == EventType.SINGLE) {
-                        event.lastExecutionTimestamp == null
-                    } else {
-                        val nextExecutionTime = event.getNextExecutionTime()
-                        nextExecutionTime != null && nextExecutionTime <= System.currentTimeMillis()
-                    }
-                }) { event ->
+                items(
+                    items = events.filter { event ->
+                        if (event.eventType == EventType.SINGLE) {
+                            event.lastExecutionTimestamp == null
+                        } else {
+                            val nextExecutionTime = event.getNextExecutionTime()
+                            nextExecutionTime != null && nextExecutionTime <= System.currentTimeMillis()
+                        }
+                    },
+                    key = { event -> event.id }
+                ) { event ->
                     EventItem(
                         event = event,
                         onSwipeToDismiss = {
                             viewModel.updateLastExecutionTimestamp(it.id, System.currentTimeMillis())
-                        }
+                        },
+                        swipeDirection = SwipeDirection.START_TO_END
                     )
                 }
             }

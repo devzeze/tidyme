@@ -1,7 +1,9 @@
 package com.dawnlight.tidyme.screens
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -61,7 +63,8 @@ import java.util.Locale
 @Composable
 fun EventItem(
     event: Event,
-    onSwipeToDismiss: ((Event) -> Unit)? = null
+    onSwipeToDismiss: ((Event) -> Unit)? = null,
+    onLongPress: ((Event) -> Unit)? = null
 ) {
     if (onSwipeToDismiss != null) {
         val dismissState = rememberSwipeToDismissBoxState(
@@ -100,19 +103,27 @@ fun EventItem(
                 }
             }
         ) {
-            EventCardContent(event = event)
+            EventCardContent(event = event, onLongPress = onLongPress)
         }
     } else {
-        EventCardContent(event = event)
+        EventCardContent(event = event, onLongPress = onLongPress)
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun EventCardContent(event: Event) {
+private fun EventCardContent(
+    event: Event,
+    onLongPress: ((Event) -> Unit)? = null
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
+            .combinedClickable(
+                onClick = {},
+                onLongClick = { onLongPress?.invoke(event) }
+            )
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -268,10 +279,12 @@ fun RoutineTaskDialog(
 fun SingleTaskDialog(
     onDismiss: () -> Unit,
     viewModel: EventViewModel,
-    category: EventCategory
+    category: EventCategory,
+    initialTitle: String = "",
+    initialDescription: String = ""
 ) {
-    var title by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
+    var title by remember { mutableStateOf(initialTitle) }
+    var description by remember { mutableStateOf(initialDescription) }
     var showDatePicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
     val calendar = Calendar.getInstance()

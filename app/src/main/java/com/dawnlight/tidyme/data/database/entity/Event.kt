@@ -15,6 +15,7 @@ data class Event(
     val repeatType: RepeatType?,
     val repeatFrequency: Int?,
     val lastExecutionTimestamp: Long?,
+    val nextExecutionTimestamp: Long?,
     val category: EventCategory,
     val createdAt: Long = System.currentTimeMillis()
 ) {

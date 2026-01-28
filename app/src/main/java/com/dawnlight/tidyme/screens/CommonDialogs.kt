@@ -313,6 +313,7 @@ fun RoutineTaskDialog(
                                     repeatType = repeatType,
                                     repeatFrequency = frequency,
                                     lastExecutionTimestamp = null,
+                                    nextExecutionTimestamp = null,
                                     category = category
                                 )
                                 viewModel.insertEvent(event)
@@ -457,6 +458,7 @@ fun SingleTaskDialog(
                                     repeatType = null,
                                     repeatFrequency = null,
                                     lastExecutionTimestamp = null,
+                                    nextExecutionTimestamp = selectedDate.timeInMillis,
                                     category = category
                                 )
                                 viewModel.insertEvent(event)

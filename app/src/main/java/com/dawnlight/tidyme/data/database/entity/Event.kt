@@ -16,7 +16,6 @@ data class Event(
     val repeatFrequency: Int?,
     val lastExecutionTimestamp: Long?,
     val nextExecutionTimestamp: Long?,
-    val category: EventCategory,
     val createdAt: Long = System.currentTimeMillis()
 ) {
     fun getNextExecutionTime(): Long? {
@@ -40,11 +39,6 @@ data class Event(
         }
         return calendar.timeInMillis
     }
-}
-
-enum class EventCategory {
-    SELF,
-    SPACE
 }
 
 enum class EventType {

@@ -5,7 +5,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.dawnlight.tidyme.data.database.AppDatabase
 import com.dawnlight.tidyme.data.database.entity.Event
-import com.dawnlight.tidyme.data.database.entity.EventCategory
 import com.dawnlight.tidyme.data.database.entity.EventType
 import com.dawnlight.tidyme.data.repository.EventRepository
 import kotlinx.coroutines.flow.Flow
@@ -41,7 +40,4 @@ class EventViewModel(application: Application) : AndroidViewModel(application) {
 
     fun getEventsByType(eventType: EventType): Flow<List<Event>> =
         repository.getEventsByType(eventType)
-
-    fun getEventsByCategory(category: EventCategory): Flow<List<Event>> =
-        repository.getEventsByCategory(category)
 }

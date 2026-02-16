@@ -36,14 +36,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dawnlight.tidyme.data.database.entity.Event
-import com.dawnlight.tidyme.data.database.entity.EventCategory
 import com.dawnlight.tidyme.data.database.entity.EventType
 import com.dawnlight.tidyme.ui.theme.TidyMeTheme
 import com.dawnlight.tidyme.viewmodel.EventViewModel
 
 @Composable
 fun SelfScreen(viewModel: EventViewModel = viewModel()) {
-    val events by viewModel.getEventsByCategory(EventCategory.SELF).collectAsState(initial = emptyList())
+    val events by viewModel.allEventsOrdered.collectAsState(initial = emptyList())
     var isExpanded by remember { mutableStateOf(false) }
     var showSingleDialog by remember { mutableStateOf(false) }
     var showRoutineDialog by remember { mutableStateOf(false) }
@@ -56,7 +55,6 @@ fun SelfScreen(viewModel: EventViewModel = viewModel()) {
                 selectedEventForDuplication = null
             },
             viewModel = viewModel,
-            category = EventCategory.SELF,
             initialTitle = selectedEventForDuplication?.title ?: "",
             initialDescription = selectedEventForDuplication?.description ?: ""
         )
@@ -69,7 +67,6 @@ fun SelfScreen(viewModel: EventViewModel = viewModel()) {
                 selectedEventForDuplication = null
             },
             viewModel = viewModel,
-            category = EventCategory.SELF,
             initialTitle = selectedEventForDuplication?.title ?: "",
             initialDescription = selectedEventForDuplication?.description ?: "",
             initialRepeatFrequency = selectedEventForDuplication?.repeatFrequency,

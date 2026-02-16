@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Public
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -27,7 +26,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.dawnlight.tidyme.screens.HomeScreen
 import com.dawnlight.tidyme.screens.SelfScreen
-import com.dawnlight.tidyme.screens.SpaceScreen
 import com.dawnlight.tidyme.ui.theme.TidyMeTheme
 
 sealed class BottomNavItem(
@@ -37,7 +35,6 @@ sealed class BottomNavItem(
 ) {
     data object Home : BottomNavItem("home", "Home", Icons.Filled.Home)
     data object Self : BottomNavItem("self", "Self", Icons.Filled.Person)
-    data object Space : BottomNavItem("space", "Space", Icons.Filled.Public)
 }
 
 class MainActivity : ComponentActivity() {
@@ -57,8 +54,7 @@ fun MainScreen() {
     val navController = rememberNavController()
     val items = listOf(
         BottomNavItem.Home,
-        BottomNavItem.Self,
-        BottomNavItem.Space
+        BottomNavItem.Self
     )
 
     Scaffold(
@@ -94,7 +90,6 @@ fun MainScreen() {
         ) {
             composable(BottomNavItem.Home.route) { HomeScreen() }
             composable(BottomNavItem.Self.route) { SelfScreen() }
-            composable(BottomNavItem.Space.route) { SpaceScreen() }
         }
     }
 }

@@ -18,7 +18,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Public
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.DatePicker
@@ -51,7 +50,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.dawnlight.tidyme.data.database.entity.Event
-import com.dawnlight.tidyme.data.database.entity.EventCategory
 import com.dawnlight.tidyme.data.database.entity.EventType
 import com.dawnlight.tidyme.data.database.entity.OccurrenceType
 import com.dawnlight.tidyme.data.database.entity.RepeatType
@@ -184,52 +182,8 @@ private fun EventCardContent(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = when (event.category) {
-                    EventCategory.SELF -> Icons.Filled.Person
-                    EventCategory.SPACE -> Icons.Filled.Public
-                },
-                contentDescription = event.category.name,
-                modifier = Modifier.padding(end = 16.dp)
-            )
-            Column {
-                // Display date and time
-                val dateTimeText = when (event.eventType) {
-                    EventType.SINGLE -> {
-                        event.nextExecutionTimestamp?.let { timestamp ->
-                            val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-                            dateFormat.format(timestamp)
-                        } ?: ""
-                    }
-                    EventType.ROUTINE -> {
-                        event.lastExecutionTimestamp?.let { lastExec ->
-                            val calendar = Calendar.getInstance().apply {
-                                timeInMillis = lastExec
-                            }
-
-                            when (event.repeatType) {
-                                RepeatType.DAYS -> calendar.add(Calendar.DAY_OF_YEAR, event.repeatFrequency ?: 1)
-                                RepeatType.WEEKS -> calendar.add(Calendar.WEEK_OF_YEAR, event.repeatFrequency ?: 1)
-                                RepeatType.MONTHS -> calendar.add(Calendar.MONTH, event.repeatFrequency ?: 1)
-                                null -> {}
-                            }
-
-                            val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-                            dateFormat.format(calendar.time)
-                        } ?: ""
-                    }
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(text = "Type: ${event.eventType}", style = MaterialTheme.typography.titleMedium)
-                    if (dateTimeText.isNotEmpty()) {
-                        Text(text = dateTimeText, style = MaterialTheme.typography.bodySmall)
-                    }
-                }
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text(text = "Type: ${event.eventType}", style = MaterialTheme.typography.titleMedium)
                 Text(text = "Title: ${event.title}", style = MaterialTheme.typography.bodyLarge)
                 Text(text = "Description: ${event.description}", style = MaterialTheme.typography.bodyMedium)
                 val occurrenceText = when (event.occurrenceType) {
@@ -245,6 +199,13 @@ private fun EventCardContent(
                     }
                 }
                 Text(text = "Occurrence: $occurrenceText", style = MaterialTheme.typography.bodySmall)
+                event.nextExecutionTimestamp?.let {
+                    val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+                    Text(
+                        text = "Next execution: ${dateFormat.format(it)}",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
             }
         }
     }
@@ -255,24 +216,17 @@ private fun EventCardContent(
 fun RoutineTaskDialog(
     onDismiss: () -> Unit,
     viewModel: EventViewModel,
-    category: EventCategory,
     initialTitle: String = "",
     initialDescription: String = "",
-    initialRepeatFrequency: Int? = null,
-    initialRepeatType: RepeatType? = null
+    initialRepeatFrequency: Int?,
+    initialRepeatType: RepeatType?
 ) {
     var title by remember { mutableStateOf(initialTitle) }
     var description by remember { mutableStateOf(initialDescription) }
     var frequencyNumber by remember { mutableStateOf(initialRepeatFrequency?.toString() ?: "") }
     val frequencyTypes = listOf("Days", "Weeks", "Months")
     var expanded by remember { mutableStateOf(false) }
-    val initialFrequency = when (initialRepeatType) {
-        RepeatType.DAYS -> "Days"
-        RepeatType.WEEKS -> "Weeks"
-        RepeatType.MONTHS -> "Months"
-        null -> frequencyTypes[0]
-    }
-    var selectedFrequency by remember { mutableStateOf(initialFrequency) }
+    var selectedFrequency by remember { mutableStateOf(initialRepeatType?.toString()?.lowercase()?.replaceFirstChar { it.uppercase() } ?: frequencyTypes[0]) }
 
     Dialog(onDismissRequest = onDismiss) {
         Surface(
@@ -358,9 +312,8 @@ fun RoutineTaskDialog(
                                     occurrenceType = OccurrenceType.REPEAT,
                                     repeatType = repeatType,
                                     repeatFrequency = frequency,
-                                    lastExecutionTimestamp = System.currentTimeMillis(),
-                                    nextExecutionTimestamp = null,
-                                    category = category
+                                    lastExecutionTimestamp = null,
+                                    nextExecutionTimestamp = null
                                 )
                                 viewModel.insertEvent(event)
                                 onDismiss()
@@ -381,7 +334,6 @@ fun RoutineTaskDialog(
 fun SingleTaskDialog(
     onDismiss: () -> Unit,
     viewModel: EventViewModel,
-    category: EventCategory,
     initialTitle: String = "",
     initialDescription: String = ""
 ) {
@@ -504,8 +456,7 @@ fun SingleTaskDialog(
                                     repeatType = null,
                                     repeatFrequency = null,
                                     lastExecutionTimestamp = null,
-                                    nextExecutionTimestamp = selectedDate.timeInMillis,
-                                    category = category
+                                    nextExecutionTimestamp = selectedDate.timeInMillis
                                 )
                                 viewModel.insertEvent(event)
                                 onDismiss()

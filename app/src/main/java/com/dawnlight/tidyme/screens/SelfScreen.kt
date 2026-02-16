@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dawnlight.tidyme.data.database.entity.Event
 import com.dawnlight.tidyme.data.database.entity.EventCategory
+import com.dawnlight.tidyme.data.database.entity.EventType
 import com.dawnlight.tidyme.ui.theme.TidyMeTheme
 import com.dawnlight.tidyme.viewmodel.EventViewModel
 
@@ -63,9 +64,16 @@ fun SelfScreen(viewModel: EventViewModel = viewModel()) {
 
     if (showRoutineDialog) {
         RoutineTaskDialog(
-            onDismiss = { showRoutineDialog = false },
+            onDismiss = {
+                showRoutineDialog = false
+                selectedEventForDuplication = null
+            },
             viewModel = viewModel,
-            category = EventCategory.SELF
+            category = EventCategory.SELF,
+            initialTitle = selectedEventForDuplication?.title ?: "",
+            initialDescription = selectedEventForDuplication?.description ?: "",
+            initialRepeatFrequency = selectedEventForDuplication?.repeatFrequency,
+            initialRepeatType = selectedEventForDuplication?.repeatType
         )
     }
 
@@ -100,7 +108,10 @@ fun SelfScreen(viewModel: EventViewModel = viewModel()) {
                         },
                         onLongPress = { longPressedEvent ->
                             selectedEventForDuplication = longPressedEvent
-                            showSingleDialog = true
+                            when (longPressedEvent.eventType) {
+                                EventType.SINGLE -> showSingleDialog = true
+                                EventType.ROUTINE -> showRoutineDialog = true
+                            }
                         },
                         dismissOnSwipeRight = false
                     )

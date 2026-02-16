@@ -193,7 +193,43 @@ private fun EventCardContent(
                 modifier = Modifier.padding(end = 16.dp)
             )
             Column {
-                Text(text = "Type: ${event.eventType}", style = MaterialTheme.typography.titleMedium)
+                // Display date and time
+                val dateTimeText = when (event.eventType) {
+                    EventType.SINGLE -> {
+                        event.nextExecutionTimestamp?.let { timestamp ->
+                            val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+                            dateFormat.format(timestamp)
+                        } ?: ""
+                    }
+                    EventType.ROUTINE -> {
+                        event.lastExecutionTimestamp?.let { lastExec ->
+                            val calendar = Calendar.getInstance().apply {
+                                timeInMillis = lastExec
+                            }
+
+                            when (event.repeatType) {
+                                RepeatType.DAYS -> calendar.add(Calendar.DAY_OF_YEAR, event.repeatFrequency ?: 1)
+                                RepeatType.WEEKS -> calendar.add(Calendar.WEEK_OF_YEAR, event.repeatFrequency ?: 1)
+                                RepeatType.MONTHS -> calendar.add(Calendar.MONTH, event.repeatFrequency ?: 1)
+                                null -> {}
+                            }
+
+                            val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+                            dateFormat.format(calendar.time)
+                        } ?: ""
+                    }
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = "Type: ${event.eventType}", style = MaterialTheme.typography.titleMedium)
+                    if (dateTimeText.isNotEmpty()) {
+                        Text(text = dateTimeText, style = MaterialTheme.typography.bodySmall)
+                    }
+                }
                 Text(text = "Title: ${event.title}", style = MaterialTheme.typography.bodyLarge)
                 Text(text = "Description: ${event.description}", style = MaterialTheme.typography.bodyMedium)
                 val occurrenceText = when (event.occurrenceType) {
@@ -219,14 +255,24 @@ private fun EventCardContent(
 fun RoutineTaskDialog(
     onDismiss: () -> Unit,
     viewModel: EventViewModel,
-    category: EventCategory
+    category: EventCategory,
+    initialTitle: String = "",
+    initialDescription: String = "",
+    initialRepeatFrequency: Int? = null,
+    initialRepeatType: RepeatType? = null
 ) {
-    var title by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var frequencyNumber by remember { mutableStateOf("") }
+    var title by remember { mutableStateOf(initialTitle) }
+    var description by remember { mutableStateOf(initialDescription) }
+    var frequencyNumber by remember { mutableStateOf(initialRepeatFrequency?.toString() ?: "") }
     val frequencyTypes = listOf("Days", "Weeks", "Months")
     var expanded by remember { mutableStateOf(false) }
-    var selectedFrequency by remember { mutableStateOf(frequencyTypes[0]) }
+    val initialFrequency = when (initialRepeatType) {
+        RepeatType.DAYS -> "Days"
+        RepeatType.WEEKS -> "Weeks"
+        RepeatType.MONTHS -> "Months"
+        null -> frequencyTypes[0]
+    }
+    var selectedFrequency by remember { mutableStateOf(initialFrequency) }
 
     Dialog(onDismissRequest = onDismiss) {
         Surface(
@@ -312,7 +358,7 @@ fun RoutineTaskDialog(
                                     occurrenceType = OccurrenceType.REPEAT,
                                     repeatType = repeatType,
                                     repeatFrequency = frequency,
-                                    lastExecutionTimestamp = null,
+                                    lastExecutionTimestamp = System.currentTimeMillis(),
                                     nextExecutionTimestamp = null,
                                     category = category
                                 )

@@ -7,8 +7,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.automirrored.filled.FactCheck
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -24,8 +24,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.dawnlight.tidyme.screens.EventScreen
 import com.dawnlight.tidyme.screens.HomeScreen
-import com.dawnlight.tidyme.screens.SelfScreen
 import com.dawnlight.tidyme.ui.theme.TidyMeTheme
 
 sealed class BottomNavItem(
@@ -33,8 +33,8 @@ sealed class BottomNavItem(
     val title: String,
     val icon: ImageVector
 ) {
-    data object Home : BottomNavItem("home", "Home", Icons.Filled.Home)
-    data object Self : BottomNavItem("self", "Self", Icons.Filled.Person)
+    data object Home : BottomNavItem("home", "Home", Icons.Filled.Schedule)
+    data object Events : BottomNavItem("events", "Events", Icons.AutoMirrored.Filled.FactCheck)
 }
 
 class MainActivity : ComponentActivity() {
@@ -54,7 +54,7 @@ fun MainScreen() {
     val navController = rememberNavController()
     val items = listOf(
         BottomNavItem.Home,
-        BottomNavItem.Self
+        BottomNavItem.Events
     )
 
     Scaffold(
@@ -89,7 +89,7 @@ fun MainScreen() {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(BottomNavItem.Home.route) { HomeScreen() }
-            composable(BottomNavItem.Self.route) { SelfScreen() }
+            composable(BottomNavItem.Events.route) { EventScreen() }
         }
     }
 }

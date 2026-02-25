@@ -1,13 +1,9 @@
 package com.dawnlight.tidyme.data.database.entity
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
 import java.util.Calendar
 
-@Entity(tableName = "events")
 data class Event(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    val id: String = "",
     val eventType: EventType,
     val title: String,
     val description: String,
@@ -18,6 +14,20 @@ data class Event(
     val nextExecutionTimestamp: Long?,
     val createdAt: Long = System.currentTimeMillis()
 ) {
+    fun toMap(): Map<String, Any?> {
+        return mapOf(
+            "eventType" to eventType.name,
+            "title" to title,
+            "description" to description,
+            "occurrenceType" to occurrenceType.name,
+            "repeatType" to repeatType?.name,
+            "repeatFrequency" to repeatFrequency,
+            "lastExecutionTimestamp" to lastExecutionTimestamp,
+            "nextExecutionTimestamp" to nextExecutionTimestamp,
+            "createdAt" to createdAt
+        )
+    }
+
     fun getNextExecutionTime(): Long? {
         if (occurrenceType == OccurrenceType.ONCE) {
             return if (lastExecutionTimestamp == null) createdAt else null

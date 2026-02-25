@@ -182,10 +182,12 @@ private fun EventCardContent(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Text(text = "Type: ${event.eventType}", style = MaterialTheme.typography.titleMedium)
-                Text(text = "Title: ${event.title}", style = MaterialTheme.typography.bodyLarge)
-                Text(text = "Description: ${event.description}", style = MaterialTheme.typography.bodyMedium)
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = "${event.title}", style = MaterialTheme.typography.bodyLarge)
+                Text(text = "${event.description}", style = MaterialTheme.typography.bodyMedium)
+            }
+            Column(modifier = Modifier.weight(3f),
+                horizontalAlignment = Alignment.End) {
                 val occurrenceText = when (event.occurrenceType) {
                     OccurrenceType.ONCE -> "Once"
                     OccurrenceType.REPEAT -> {
@@ -198,11 +200,11 @@ private fun EventCardContent(
                         "Repeat every ${event.repeatFrequency} $repeatTypeText"
                     }
                 }
-                Text(text = "Occurrence: $occurrenceText", style = MaterialTheme.typography.bodySmall)
+                Text(text = "$occurrenceText", style = MaterialTheme.typography.bodySmall)
                 event.nextExecutionTimestamp?.let {
                     val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
                     Text(
-                        text = "Next execution: ${dateFormat.format(it)}",
+                        text = "${dateFormat.format(it)}",
                         style = MaterialTheme.typography.bodySmall
                     )
                 }

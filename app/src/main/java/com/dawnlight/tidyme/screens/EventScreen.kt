@@ -41,7 +41,7 @@ import com.dawnlight.tidyme.ui.theme.TidyMeTheme
 import com.dawnlight.tidyme.viewmodel.EventViewModel
 
 @Composable
-fun SelfScreen(viewModel: EventViewModel = viewModel()) {
+fun EventScreen(viewModel: EventViewModel = viewModel()) {
     val events by viewModel.allEventsOrdered.collectAsState(initial = emptyList())
     var isExpanded by remember { mutableStateOf(false) }
     var showSingleDialog by remember { mutableStateOf(false) }
@@ -81,7 +81,7 @@ fun SelfScreen(viewModel: EventViewModel = viewModel()) {
             modifier = Modifier.fillMaxSize()
         ) {
             Text(
-                text = "Self",
+                text = "Events",
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
@@ -179,8 +179,8 @@ fun FabOption(
 
 @Preview(showBackground = true)
 @Composable
-fun SelfScreenPreview() {
+fun EventScreenPreview() {
     TidyMeTheme {
-        SelfScreen()
+        EventScreen()
     }
 }

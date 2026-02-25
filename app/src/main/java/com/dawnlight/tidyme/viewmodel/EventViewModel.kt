@@ -1,26 +1,17 @@
 package com.dawnlight.tidyme.viewmodel
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dawnlight.tidyme.data.database.AppDatabase
 import com.dawnlight.tidyme.data.database.entity.Event
 import com.dawnlight.tidyme.data.database.entity.EventType
-import com.dawnlight.tidyme.data.repository.EventRepository
+import com.dawnlight.tidyme.data.repository.FirestoreEventRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
-class EventViewModel(application: Application) : AndroidViewModel(application) {
-    private val repository: EventRepository
-    val allEvents: Flow<List<Event>>
-    val allEventsOrdered: Flow<List<Event>>
-
-    init {
-        val eventDao = AppDatabase.getDatabase(application).eventDao()
-        repository = EventRepository(eventDao)
-        allEvents = repository.getAllEvents()
-        allEventsOrdered = repository.getAllEventsOrdered()
-    }
+class EventViewModel : ViewModel() {
+    private val repository = FirestoreEventRepository()
+    val allEvents: Flow<List<Event>> = repository.getAllEvents()
+    val allEventsOrdered: Flow<List<Event>> = repository.getAllEventsOrdered()
 
     fun insertEvent(event: Event) = viewModelScope.launch {
         repository.insertEvent(event)
@@ -34,7 +25,7 @@ class EventViewModel(application: Application) : AndroidViewModel(application) {
         repository.deleteEvent(event)
     }
 
-    fun updateLastExecutionTimestamp(id: Int, timestamp: Long) = viewModelScope.launch {
+    fun updateLastExecutionTimestamp(id: String, timestamp: Long) = viewModelScope.launch {
         repository.updateLastExecutionTimestamp(id, timestamp)
     }
 

@@ -2,10 +2,11 @@ package com.dawnlight.tidyme.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+val Blue80 = Color(0xFFADC6FF)      // Primary: A light, accessible blue
+val BlueGrey80 = Color(0xFFBFC6DC)  // Secondary: A muted, light blue-grey
+val LightBlue80 = Color(0xFF99CBFF) // Tertiary: A slightly brighter accent blue
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+// For Light Theme (Darker, saturated tones)
+val Blue40 = Color(0xFF3A5FCD)      // Primary: A strong, classic blue
+val BlueGrey40 = Color(0xFF585F71)  // Secondary: A deep, slate blue-grey
+val LightBlue40 = Color(0xFF2A599E) // Tertiary: A deep sky blue for accents

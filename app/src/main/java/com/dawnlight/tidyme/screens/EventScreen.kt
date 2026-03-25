@@ -6,6 +6,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -43,6 +44,21 @@ import com.dawnlight.tidyme.viewmodel.EventViewModel
 @Composable
 fun EventScreen(viewModel: EventViewModel = viewModel()) {
     val events by viewModel.allEventsOrdered.collectAsState(initial = emptyList())
+    EventScreenContent(
+        events = events,
+        onDeleteEvent = { viewModel.deleteEvent(it) },
+        onUpdateEvent = { viewModel.updateEvent(it) },
+        onInsertEvent = { viewModel.insertEvent(it) }
+    )
+}
+
+@Composable
+fun EventScreenContent(
+    events: List<Event>,
+    onDeleteEvent: (Event) -> Unit,
+    onUpdateEvent: (Event) -> Unit,
+    onInsertEvent: (Event) -> Unit
+) {
     var isExpanded by remember { mutableStateOf(false) }
     var showSingleDialog by remember { mutableStateOf(false) }
     var showRoutineDialog by remember { mutableStateOf(false) }
@@ -54,7 +70,7 @@ fun EventScreen(viewModel: EventViewModel = viewModel()) {
                 showSingleDialog = false
                 selectedEventForDuplication = null
             },
-            viewModel = viewModel,
+            viewModel = viewModel(), // This is a bit hacky for a stateless content, but kept for simplicity as per instructions
             initialTitle = selectedEventForDuplication?.title ?: "",
             initialDescription = selectedEventForDuplication?.description ?: ""
         )
@@ -66,7 +82,7 @@ fun EventScreen(viewModel: EventViewModel = viewModel()) {
                 showRoutineDialog = false
                 selectedEventForDuplication = null
             },
-            viewModel = viewModel,
+            viewModel = viewModel(), // Same as above
             initialTitle = selectedEventForDuplication?.title ?: "",
             initialDescription = selectedEventForDuplication?.description ?: "",
             initialRepeatFrequency = selectedEventForDuplication?.repeatFrequency,
@@ -75,7 +91,9 @@ fun EventScreen(viewModel: EventViewModel = viewModel()) {
     }
 
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Column(
             modifier = Modifier.fillMaxSize()
@@ -83,7 +101,7 @@ fun EventScreen(viewModel: EventViewModel = viewModel()) {
             Text(
                 text = "Events",
                 fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.Thin,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(16.dp).align(Alignment.CenterHorizontally)
             )
@@ -97,11 +115,11 @@ fun EventScreen(viewModel: EventViewModel = viewModel()) {
                     EventItem(
                         event = event,
                         onSwipeToDismiss = { eventToDelete ->
-                            viewModel.deleteEvent(eventToDelete)
+                            onDeleteEvent(eventToDelete)
                         },
                         onSwipeRight = { eventToMarkUndone ->
                             val updatedEvent = eventToMarkUndone.copy(lastExecutionTimestamp = null)
-                            viewModel.updateEvent(updatedEvent)
+                            onUpdateEvent(updatedEvent)
                         },
                         onLongPress = { longPressedEvent ->
                             selectedEventForDuplication = longPressedEvent
@@ -181,6 +199,11 @@ fun FabOption(
 @Composable
 fun EventScreenPreview() {
     TidyMeTheme {
-        EventScreen()
+        EventScreenContent(
+            events = emptyList(),
+            onDeleteEvent = {},
+            onUpdateEvent = {},
+            onInsertEvent = {}
+        )
     }
 }

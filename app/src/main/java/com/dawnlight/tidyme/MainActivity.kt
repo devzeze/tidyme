@@ -37,8 +37,8 @@ sealed class BottomNavItem(
     val title: String,
     val icon: ImageVector
 ) {
-    data object Home : BottomNavItem("home", "Home", Icons.Filled.Schedule)
-    data object Events : BottomNavItem("events", "Events", Icons.AutoMirrored.Filled.FactCheck)
+    data object Home : BottomNavItem("home", "Progress", Icons.Filled.Schedule)
+    data object Events : BottomNavItem("events", "Plan", Icons.AutoMirrored.Filled.FactCheck)
 }
 
 class MainActivity : ComponentActivity() {

@@ -38,6 +38,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dawnlight.tidyme.data.database.entity.Event
 import com.dawnlight.tidyme.data.database.entity.EventType
+import com.dawnlight.tidyme.data.database.entity.OccurrenceType
+import com.dawnlight.tidyme.data.database.entity.RepeatType
 import com.dawnlight.tidyme.ui.theme.TidyMeTheme
 import com.dawnlight.tidyme.viewmodel.EventViewModel
 
@@ -99,10 +101,8 @@ fun EventScreenContent(
             modifier = Modifier.fillMaxSize()
         ) {
             Text(
-                text = "Events",
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Thin,
-                color = MaterialTheme.colorScheme.primary,
+                text = "Build your plan",
+                style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier.padding(16.dp).align(Alignment.CenterHorizontally)
             )
             LazyColumn(
@@ -200,7 +200,30 @@ fun FabOption(
 fun EventScreenPreview() {
     TidyMeTheme {
         EventScreenContent(
-            events = emptyList(),
+            events = listOf(
+                Event(
+                    id = "1",
+                    title = "Daily Cleaning",
+                    description = "Clean the kitchen",
+                    eventType = EventType.ROUTINE,
+                    occurrenceType = OccurrenceType.REPEAT,
+                    repeatType = RepeatType.DAYS,
+                    repeatFrequency = 1,
+                    lastExecutionTimestamp = null,
+                    nextExecutionTimestamp = null
+                ),
+                Event(
+                    id = "2",
+                    title = "Monthly Laundry",
+                    description = "Wash the curtains",
+                    eventType = EventType.ROUTINE,
+                    occurrenceType = OccurrenceType.REPEAT,
+                    repeatType = RepeatType.MONTHS,
+                    repeatFrequency = 1,
+                    lastExecutionTimestamp = null,
+                    nextExecutionTimestamp = null
+                )
+            ),
             onDeleteEvent = {},
             onUpdateEvent = {},
             onInsertEvent = {}

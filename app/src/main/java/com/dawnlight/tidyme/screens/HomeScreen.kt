@@ -52,10 +52,8 @@ fun HomeScreenContent(
             modifier = Modifier.fillMaxSize()
         ) {
             Text(
-                text = "Home",
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Thin,
-                color = MaterialTheme.colorScheme.primary,
+                text = "Track your progress",
+                style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier.padding(16.dp).align(Alignment.CenterHorizontally)
             )
             LazyColumn(
@@ -64,7 +62,7 @@ fun HomeScreenContent(
                 items(
                     items = events.filter { event ->
                         if (event.eventType == EventType.SINGLE) {
-                            event.lastExecutionTimestamp == null
+                            event.nextExecutionTimestamp == null || event.nextExecutionTimestamp <= System.currentTimeMillis()
                         } else {
                             val nextExecutionTime = event.getNextExecutionTime()
                             nextExecutionTime != null && nextExecutionTime <= System.currentTimeMillis()

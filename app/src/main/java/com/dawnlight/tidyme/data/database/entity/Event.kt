@@ -30,7 +30,7 @@ data class Event(
 
     fun getNextExecutionTime(): Long? {
         if (occurrenceType == OccurrenceType.ONCE) {
-            return if (lastExecutionTimestamp == null) createdAt else null
+            return nextExecutionTimestamp
         }
 
         if (lastExecutionTimestamp == null) {

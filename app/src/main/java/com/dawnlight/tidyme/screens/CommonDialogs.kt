@@ -206,7 +206,7 @@ private fun EventCardContent(
                             RepeatType.MONTHS -> "Months"
                             null -> ""
                         }
-                        "Repeat every ${event.repeatFrequency} $repeatTypeText"
+                        "Repeat every\n${event.repeatFrequency} $repeatTypeText"
                     }
                 }
                 Text(text = occurrenceText, style = MaterialTheme.typography.bodySmall)
@@ -497,7 +497,7 @@ fun SingleTaskDialogContent(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
-                Text(text = "Select Date & Time: ${dateFormat.format(selectedTimestamp)}")
+                Text(text = "Select Date & Time:\n${dateFormat.format(selectedTimestamp)}")
             }
             Row(
                 horizontalArrangement = Arrangement.End,

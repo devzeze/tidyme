@@ -62,7 +62,7 @@ fun HomeScreenContent(
                 Image(
                     painter = painterResource(id = R.drawable.logo),
                     contentDescription = "Logo",
-                    modifier = Modifier.size(40.dp)
+                    modifier = Modifier.size(80.dp)
                 )
                 Text(
                     text = "Track your progress",

@@ -7,4 +7,4 @@ val Blue40 = Color(0xFF3A5FCD)      // Primary: A strong, classic blue
 val BlueGrey40 = Color(0xFF585F71)  // Secondary: A deep, slate blue-grey
 val LightBlue40 = Color(0xFF2A599E) // Tertiary: A deep sky blue for accents
 
-val LightGray = Color(0xFFF5F5F5)
+val LightGray = Color(0xFFE8E7E7)

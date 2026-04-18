@@ -25,8 +25,8 @@ class EventViewModel : ViewModel() {
         repository.deleteEvent(event)
     }
 
-    fun updateLastExecutionTimestamp(id: String, timestamp: Long) = viewModelScope.launch {
-        repository.updateLastExecutionTimestamp(id, timestamp)
+    fun updateLastExecutionTimestamp(event: Event, timestamp: Long) = viewModelScope.launch {
+        repository.updateLastExecutionTimestamp(event.id, timestamp)
     }
 
     fun getEventsByType(eventType: EventType): Flow<List<Event>> =

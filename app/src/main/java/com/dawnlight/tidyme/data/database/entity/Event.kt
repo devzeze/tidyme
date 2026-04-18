@@ -49,11 +49,20 @@ data class Event(
         }
         return calendar.timeInMillis
     }
+
+    fun getStreakDays(): Long? {
+        return if(eventType == EventType.STREAK && lastExecutionTimestamp != null) {
+            (System.currentTimeMillis()/(1000*60*60*24)) - (lastExecutionTimestamp / (1000*60*60*24))
+        } else {
+            0
+        }
+    }
 }
 
 enum class EventType {
     SINGLE,
-    ROUTINE
+    ROUTINE,
+    STREAK
 }
 
 enum class OccurrenceType {

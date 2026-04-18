@@ -67,10 +67,11 @@ fun EventScreenContent(
     var isExpanded by remember { mutableStateOf(false) }
     var showSingleDialog by remember { mutableStateOf(false) }
     var showRoutineDialog by remember { mutableStateOf(false) }
+    var showStreakDialog by remember { mutableStateOf(false) }
     var selectedEventForDuplication by remember { mutableStateOf<Event?>(null) }
 
     if (showSingleDialog) {
-        SingleTaskDialog(
+        SporadicTaskDialog(
             onDismiss = {
                 showSingleDialog = false
                 selectedEventForDuplication = null
@@ -78,6 +79,21 @@ fun EventScreenContent(
             viewModel = viewModel(), // This is a bit hacky for a stateless content, but kept for simplicity as per instructions
             initialTitle = selectedEventForDuplication?.title ?: "",
             initialDescription = selectedEventForDuplication?.description ?: ""
+        )
+    }
+
+    if (showStreakDialog) {
+        SporadicTaskDialog(
+            onDismiss = {
+                showStreakDialog = false
+                selectedEventForDuplication = null
+            },
+            viewModel = viewModel(), // This is a bit hacky for a stateless content, but kept for simplicity as per instructions
+            initialTitle = selectedEventForDuplication?.title ?: "",
+            initialDescription = selectedEventForDuplication?.description ?: "",
+            eventType = EventType.STREAK,
+            dialogTitle = "Start new streak"
+
         )
     }
 
@@ -141,6 +157,7 @@ fun EventScreenContent(
                             when (longPressedEvent.eventType) {
                                 EventType.SINGLE -> showSingleDialog = true
                                 EventType.ROUTINE -> showRoutineDialog = true
+                                EventType.STREAK -> showStreakDialog = true
                             }
                         },
                         dismissOnSwipeRight = false
@@ -165,6 +182,7 @@ fun EventScreenContent(
                     horizontalAlignment = Alignment.End,
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
+                    FabOption(text = "Streak", onClick = { showStreakDialog = true })
                     FabOption(text = "Routine", onClick = { showRoutineDialog = true })
                     FabOption(text = "Single", onClick = { showSingleDialog = true })
                 }

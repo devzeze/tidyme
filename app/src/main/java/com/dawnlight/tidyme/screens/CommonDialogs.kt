@@ -61,166 +61,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import java.util.TimeZone
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun EventItem(
-    event: Event,
-    onSwipeToDismiss: ((Event) -> Unit)? = null,
-    onSwipeRight: ((Event) -> Unit)? = null,
-    onLongPress: ((Event) -> Unit)? = null,
-    swipeDirection: SwipeDirection = SwipeDirection.END_TO_START,
-    dismissOnSwipeRight: Boolean = true
-) {
-    val hasSwipeAction = onSwipeToDismiss != null || onSwipeRight != null
-
-    if (hasSwipeAction) {
-        val dismissState = rememberSwipeToDismissBoxState(
-            confirmValueChange = { value ->
-                when (value) {
-                    SwipeToDismissBoxValue.StartToEnd -> {
-                        if (onSwipeRight != null) {
-                            onSwipeRight(event)
-                            dismissOnSwipeRight
-                        } else if (swipeDirection == SwipeDirection.START_TO_END && onSwipeToDismiss != null) {
-                            onSwipeToDismiss(event)
-                            true
-                        } else {
-                            false
-                        }
-                    }
-                    SwipeToDismissBoxValue.EndToStart -> {
-                        if (swipeDirection == SwipeDirection.END_TO_START && onSwipeToDismiss != null) {
-                            onSwipeToDismiss(event)
-                            true
-                        } else {
-                            false
-                        }
-                    }
-                    else -> false
-                }
-            }
-        )
-
-        val enableStartToEnd = onSwipeRight != null || (swipeDirection == SwipeDirection.START_TO_END && onSwipeToDismiss != null)
-        val enableEndToStart = swipeDirection == SwipeDirection.END_TO_START && onSwipeToDismiss != null
-
-        SwipeToDismissBox(
-            state = dismissState,
-            enableDismissFromStartToEnd = enableStartToEnd,
-            enableDismissFromEndToStart = enableEndToStart,
-            backgroundContent = {
-                val startColor by animateColorAsState(
-                    when (dismissState.targetValue) {
-                        SwipeToDismissBoxValue.StartToEnd -> Color.Green.copy(alpha = 0.5f)
-                        else -> Color.Transparent
-                    }, label = "start background color"
-                )
-                val endColor by animateColorAsState(
-                    when (dismissState.targetValue) {
-                        SwipeToDismissBoxValue.EndToStart -> Color.Red.copy(alpha = 0.5f)
-                        else -> Color.Transparent
-                    }, label = "end background color"
-                )
-
-                Box(Modifier.fillMaxSize()) {
-                    if (enableStartToEnd) {
-                        Box(
-                            Modifier
-                                .fillMaxSize()
-                                .background(startColor)
-                                .padding(horizontal = 20.dp),
-                            contentAlignment = Alignment.CenterStart
-                        ) {
-                            Icon(
-                                Icons.Default.Done,
-                                contentDescription = if (onSwipeRight != null) "Mark as undone" else "Mark as done"
-                            )
-                        }
-                    }
-                    if (enableEndToStart) {
-                        Box(
-                            Modifier
-                                .fillMaxSize()
-                                .background(endColor)
-                                .padding(horizontal = 20.dp),
-                            contentAlignment = Alignment.CenterEnd
-                        ) {
-                            Icon(
-                                Icons.Default.Delete,
-                                contentDescription = "Delete"
-                            )
-                        }
-                    }
-                }
-            }
-        ) {
-            EventCardContent(event = event, onLongPress = onLongPress)
-        }
-    } else {
-        EventCardContent(event = event, onLongPress = onLongPress)
-    }
-}
-
-enum class SwipeDirection {
-    START_TO_END,  // Swipe right
-    END_TO_START   // Swipe left
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun EventCardContent(
-    event: Event,
-    onLongPress: ((Event) -> Unit)? = null
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp)
-            .combinedClickable(
-                onClick = {},
-                onLongClick = { onLongPress?.invoke(event) }
-            ),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        )
-    ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(text = event.title, style = MaterialTheme.typography.bodyLarge)
-                Text(text = event.description, style = MaterialTheme.typography.bodyMedium)
-            }
-            Spacer(modifier = Modifier.width(8.dp))
-            Column(
-                horizontalAlignment = Alignment.End
-            ) {
-                val occurrenceText = when (event.occurrenceType) {
-                    OccurrenceType.ONCE -> "Once"
-                    OccurrenceType.REPEAT -> {
-                        val repeatTypeText = when (event.repeatType) {
-                            RepeatType.DAYS -> "Days"
-                            RepeatType.WEEKS -> "Weeks"
-                            RepeatType.MONTHS -> "Months"
-                            null -> ""
-                        }
-                        "Repeat every\n${event.repeatFrequency} $repeatTypeText"
-                    }
-                }
-                Text(text = occurrenceText, style = MaterialTheme.typography.bodySmall)
-                event.nextExecutionTimestamp?.let {
-                    val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-                    Text(
-                        text = dateFormat.format(it),
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
-            }
-        }
-    }
-}
+import kotlin.String
 
 @Composable
 fun RoutineTaskDialog(
@@ -362,29 +203,35 @@ fun RoutineTaskDialogContent(
 }
 
 @Composable
-fun SingleTaskDialog(
+fun SporadicTaskDialog(
     onDismiss: () -> Unit,
     viewModel: EventViewModel,
     initialTitle: String = "",
-    initialDescription: String = ""
+    initialDescription: String = "",
+    dialogTitle: String = "New Single Task",
+    eventType: EventType = EventType.SINGLE
 ) {
     Dialog(onDismissRequest = onDismiss) {
-        SingleTaskDialogContent(
+        SporadicTaskDialogContent(
             onDismiss = onDismiss,
             onSave = { viewModel.insertEvent(it) },
             initialTitle = initialTitle,
-            initialDescription = initialDescription
+            initialDescription = initialDescription,
+            dialogTitle = dialogTitle,
+            eventType = eventType
         )
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SingleTaskDialogContent(
+fun SporadicTaskDialogContent(
     onDismiss: () -> Unit,
     onSave: (Event) -> Unit,
-    initialTitle: String = "",
-    initialDescription: String = ""
+    initialTitle: String,
+    initialDescription: String,
+    dialogTitle: String ,
+    eventType: EventType
 ) {
     var title by remember { mutableStateOf(initialTitle) }
     var description by remember { mutableStateOf(initialDescription) }
@@ -478,7 +325,7 @@ fun SingleTaskDialogContent(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(text = "New Single Task", style = MaterialTheme.typography.titleLarge)
+            Text(text = dialogTitle, style = MaterialTheme.typography.titleLarge)
             OutlinedTextField(
                 value = title,
                 onValueChange = { title = it },
@@ -511,14 +358,14 @@ fun SingleTaskDialogContent(
                     onClick = {
                         if (title.isNotBlank()) {
                             val event = Event(
-                                eventType = EventType.SINGLE,
+                                eventType = eventType,
                                 title = title,
                                 description = description,
                                 occurrenceType = OccurrenceType.ONCE,
                                 repeatType = null,
                                 repeatFrequency = null,
-                                lastExecutionTimestamp = null,
-                                nextExecutionTimestamp = selectedTimestamp
+                                lastExecutionTimestamp = if(eventType == EventType.SINGLE)  null else selectedTimestamp,
+                                nextExecutionTimestamp = if(eventType == EventType.SINGLE)  selectedTimestamp else null
                             )
                             onSave(event)
                             onDismiss()
@@ -529,43 +376,6 @@ fun SingleTaskDialogContent(
                     Text("Save")
                 }
             }
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun EventItemPreview() {
-    TidyMeTheme {
-        Column(modifier = Modifier.padding(16.dp)) {
-            EventItem(
-                event = Event(
-                    id = "1",
-                    title = "Daily Cleaning",
-                    description = "Clean the kitchen",
-                    eventType = EventType.ROUTINE,
-                    occurrenceType = OccurrenceType.REPEAT,
-                    repeatType = RepeatType.DAYS,
-                    repeatFrequency = 1,
-                    lastExecutionTimestamp = null,
-                    nextExecutionTimestamp = System.currentTimeMillis()
-                ),
-                onSwipeToDismiss = {}
-            )
-            EventItem(
-                event = Event(
-                    id = "2",
-                    title = "Doctor Appointment",
-                    description = "Visit the dentist",
-                    eventType = EventType.SINGLE,
-                    occurrenceType = OccurrenceType.ONCE,
-                    repeatType = null,
-                    repeatFrequency = null,
-                    lastExecutionTimestamp = null,
-                    nextExecutionTimestamp = System.currentTimeMillis()
-                ),
-                onSwipeToDismiss = {}
-            )
         }
     }
 }
@@ -587,13 +397,15 @@ fun RoutineTaskDialogPreview() {
 
 @Preview(showBackground = true)
 @Composable
-fun SingleTaskDialogPreview() {
+fun SporadicTaskDialogPreview() {
     TidyMeTheme {
-        SingleTaskDialogContent(
+        SporadicTaskDialogContent(
             onDismiss = {},
             onSave = {},
             initialTitle = "Doctor Appointment",
-            initialDescription = "Visit the dentist"
+            initialDescription = "Visit the dentist",
+            dialogTitle = "New Single Task",
+            eventType = EventType.SINGLE
         )
     }
 }

@@ -34,8 +34,8 @@ fun HomeScreen(viewModel: EventViewModel = viewModel()) {
     val events by viewModel.allEventsOrdered.collectAsState(initial = emptyList())
     HomeScreenContent(
         events = events,
-        onSwipeToDismiss = { eventId ->
-            viewModel.updateLastExecutionTimestamp(eventId, System.currentTimeMillis())
+        onSwipeToDismiss = { event ->
+            viewModel.updateLastExecutionTimestamp(event, System.currentTimeMillis())
         }
     )
 }
@@ -43,7 +43,7 @@ fun HomeScreen(viewModel: EventViewModel = viewModel()) {
 @Composable
 fun HomeScreenContent(
     events: List<Event>,
-    onSwipeToDismiss: (String) -> Unit
+    onSwipeToDismiss: (Event) -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -75,19 +75,25 @@ fun HomeScreenContent(
             ) {
                 items(
                     items = events.filter { event ->
-                        if (event.eventType == EventType.SINGLE) {
-                            event.nextExecutionTimestamp == null || event.nextExecutionTimestamp <= System.currentTimeMillis()
-                        } else {
-                            val nextExecutionTime = event.getNextExecutionTime()
-                            nextExecutionTime != null && nextExecutionTime <= System.currentTimeMillis()
+                        when (event.eventType) {
+                            EventType.STREAK -> {
+                                true
+                            }
+                            EventType.SINGLE -> {
+                                event.lastExecutionTimestamp == null && (event.nextExecutionTimestamp == null || event.nextExecutionTimestamp <= System.currentTimeMillis())
+                            }
+                            EventType.ROUTINE -> {
+                                val nextExecutionTime = event.getNextExecutionTime()
+                                nextExecutionTime != null && nextExecutionTime <= System.currentTimeMillis()
+                            }
                         }
                     },
-                    key = { event -> event.id }
+                    key = { event -> "${event.id}_${event.lastExecutionTimestamp}" }
                 ) { event ->
                     EventItem(
                         event = event,
                         onSwipeToDismiss = {
-                            onSwipeToDismiss(it.id)
+                            onSwipeToDismiss(it)
                         },
                         swipeDirection = SwipeDirection.START_TO_END
                     )
